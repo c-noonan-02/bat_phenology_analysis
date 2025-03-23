@@ -22,3 +22,16 @@ View(metaanalysis_data)
 metaanalysis_data$difference_SE <- sqrt((metaanalysis_data$light_se)^2 + (metaanalysis_data$dark_se)^2)
 View(metaanalysis_data)
 
+# visualise the data
+plot(metaanalysis_data$difference_means, (1 / metaanalysis_data$difference_SE), xlab = "Mean difference in time of first activity (minutes after sunset)", ylab = "Precision (1/SE)")
+
+# calculate SE
+metaanalysis_data$difference_variance <- metaanalysis_data$difference_SE^2
+
+# build meta-analysis model of mean difference
+meta_model <- rma(yi = difference_means, vi = difference_variance, data = metaanalysis_data)
+meta_model
+
+# plot the model
+funnel(meta_model)
+forest(meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs")
