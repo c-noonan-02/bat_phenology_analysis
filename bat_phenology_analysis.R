@@ -34,4 +34,8 @@ meta_model
 
 # plot the model
 funnel(meta_model)
+funnel(meta_model, back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+# trying to add labels to the plot
+# text(meta_model$yi, metaanalysis_data$difference_SE + 0.05, labels = metaanalysis_data$paper_ID, pos = 3, cex = 0.7)
+
 forest(meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs")
