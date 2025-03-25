@@ -1,3 +1,5 @@
+#### Set-up ####
+
 # clear environment
 rm(list = ls())
 
@@ -10,14 +12,12 @@ head(metaanalysis_data)
 bibliography_data <- read.csv("./data/bibliography_data.csv", sep = ",", header = TRUE)
 head(bibliography_data)
 
-# combine the two, to form the final dataset
-# metaanalysis_data <- merge(bibliography_data, extracted_data, by = "paper_ID")
-# View(metaanalysis_data)
-
 # place papers in alphabetical order, as this is more logical
 bibliography_data <- bibliography_data[order(bibliography_data$author), ]
 metaanalysis_data <- metaanalysis_data[match(bibliography_data$paper_ID, metaanalysis_data$paper_ID), ]
 
+
+#### Calculate Effect Sizes ####
 
 # calculate the difference between the means
 metaanalysis_data$difference_means <- metaanalysis_data$light_treatment_mean - metaanalysis_data$dark_treatment_mean
@@ -32,6 +32,9 @@ plot(metaanalysis_data$difference_means, (1 / metaanalysis_data$difference_SE), 
 
 # calculate variance
 metaanalysis_data$difference_variance <- metaanalysis_data$difference_SE^2
+
+
+#### Meta-Analysis ####
 
 # build meta-analysis model of mean difference
 meta_model <- rma(yi = difference_means, sei = difference_SE, data = metaanalysis_data)
@@ -55,3 +58,13 @@ for (i in seq_along(study_labels)) {
 
 # plot the model - forest plot
 forest(meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
+
+
+#### Assessment of Literature ####
+
+# Here I will visualise the information I have on papers - i.e. the number of papers that will have the data but chose not to consider timing, those which do not report data appropriately, etc.
+
+
+#### Export figures ####
+
+# will add code here to save the figures
