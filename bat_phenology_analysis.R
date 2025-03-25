@@ -54,4 +54,4 @@ for (i in seq_along(study_labels)) {
   }}
 
 # plot the model - forest plot
-forest(meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs")
+forest(meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
