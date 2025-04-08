@@ -23,30 +23,30 @@ metaanalysis_data <- metaanalysis_data[match(bibliography_data$paper_ID, metaana
 
 ##### Calculate Effect Sizes #####
 
-# calculate the difference between the means
-metaanalysis_data$difference_means <- metaanalysis_data$light_treatment_mean - metaanalysis_data$dark_treatment_mean
-View(metaanalysis_data)
+# calculate sd as this is needed to use the escalc() function
+metaanalysis_data$light_sd <- metaanalysis_data$light_se * sqrt(metaanalysis_data$light_n)
+metaanalysis_data$dark_sd  <- metaanalysis_data$dark_se  * sqrt(metaanalysis_data$dark_n)
 
-# calculate the associated SE
-metaanalysis_data$difference_SE <- sqrt((metaanalysis_data$light_se)^2 + (metaanalysis_data$dark_se)^2)
+# calculate using package
+metaanalysis_data <- escalc(measure = "MD",
+                                   m1i = light_treatment_mean, sd1i = light_sd, n1i = light_n,
+                                   m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
+                                   data = metaanalysis_data)
 View(metaanalysis_data)
 
 # visualise the data
-plot(metaanalysis_data$difference_means, (1 / metaanalysis_data$difference_SE), xlab = "Mean difference in time of first activity (minutes after sunset)", ylab = "Precision (1/SE)")
-
-# calculate variance
-metaanalysis_data$difference_variance <- metaanalysis_data$difference_SE^2
-
+plot(metaanalysis_data$yi, metaanalysis_data$vi, xlab = "Mean difference in time of first activity (minutes after sunset)", ylab = "Variance")
 
 ##### Meta-Analysis #####
 
 # build meta-analysis model of mean difference
-timing_meta_model <- rma(yi = difference_means, sei = difference_SE, data = metaanalysis_data)
+timing_meta_model <- rma(yi, vi, data = metaanalysis_data)
 timing_meta_model
+summary(timing_meta_model)
 
 # plot the model - funnel plot
 funnel(timing_meta_model)
-funnel(timing_meta_model, label = "all", legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+funnel(timing_meta_model, label = "all", legend = list(cex = 0.9), yaxis = "sei", back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
 
 # add labels explaining which points are associated with which papers
 study_labels <- c("4 = Zou et al. (2024)", "3 = Stone et al. (2009)", "2 = Mariton et al. (2022)", "1 = Lou et al. (2021)", "Studies:")
@@ -65,6 +65,7 @@ forest(timing_meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = 
 
 
 #### 2. Meta-analysis on mean activity levels ####
+
 # clear environment
 rm(list = ls())
 
@@ -85,25 +86,22 @@ head(bibliography_data)
 
 ##### Calculate Effect Sizes #####
 
-# calculate the difference between the means
-bat_passes_data$difference_means <- bat_passes_data$light_treatment_mean - bat_passes_data$dark_treatment_mean
-head(bat_passes_data)
+# calculate sd as this is needed to use the escalc() function
+bat_passes_data$light_sd <- bat_passes_data$light_se * sqrt(bat_passes_data$light_n)
+bat_passes_data$dark_sd  <- bat_passes_data$dark_se  * sqrt(bat_passes_data$dark_n)
 
-# calculate the associated SE
-bat_passes_data$difference_SE <- sqrt((bat_passes_data$light_se)^2 + (bat_passes_data$dark_se)^2)
-head(bat_passes_data)
-
-# visualise the data
-plot(bat_passes_data$difference_means, (1 / bat_passes_data$difference_SE), xlab = "Mean difference in mean activity (mean number of passess)", ylab = "Precision (1/SE)")
-
-# calculate variance
-bat_passes_data$difference_variance <- bat_passes_data$difference_SE^2
+# calculate using package
+bat_passes_data <- escalc(measure = "MD",
+                            m1i = light_treatment_mean, sd1i = light_sd, n1i = light_n,
+                            m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
+                            data = bat_passes_data)
+View(bat_passes_data)
 
 
 ##### Meta-Analysis #####
 
 # build meta-analysis model of mean difference
-activity_meta_model <- rma.mv(yi = difference_means, sei = difference_SE, data = bat_passes_data)
+activity_meta_model <- rma(yi, vi, data = bat_passes_data)
 activity_meta_model
 
 # trying to build random effect model
