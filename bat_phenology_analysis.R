@@ -72,7 +72,10 @@ rm(list = ls())
 # import relevant packages
 library(metafor)
 
-##### Set-up #####
+
+##### By species #####
+
+###### Set-up ######
 # import data sets
 bat_passes_data <- read.csv("./activity_data/bat_passes_data.csv", sep = ",", header = TRUE)
 head(bat_passes_data)
@@ -84,7 +87,7 @@ head(bibliography_data)
 # bat_passes_data <- bat_passes_data[match(bibliography_data$paper_ID, bat_passes_data$paper_ID), ]
 
 
-##### Calculate Effect Sizes #####
+###### Calculate Effect Sizes ######
 
 # calculate sd as this is needed to use the escalc() function
 bat_passes_data$light_sd <- bat_passes_data$light_se * sqrt(bat_passes_data$light_n)
@@ -98,7 +101,7 @@ bat_passes_data <- escalc(measure = "MD",
 View(bat_passes_data)
 
 
-##### Meta-Analysis #####
+###### Meta-Analysis ######
 
 # build meta-analysis model of mean difference
 activity_meta_model <- rma.mv(yi, vi, mods = ~ 1, random = list(~1|species, ~1|paper_ID), data = bat_passes_data)
@@ -110,10 +113,49 @@ funnel(activity_meta_model)
 funnel(activity_meta_model, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
 
 # plot the model - forest plot
-forest(activity_meta_model3, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
+forest(activity_meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
 
 # change label from study to estimate, colour by species, etc.
-# add moderators
+
+
+##### Over-all #####
+
+
+###### Set-up ######
+# import data sets
+all_bat_passes_data <- read.csv("./activity_data/all_bat_passes_data.csv", sep = ",", header = TRUE)
+head(all_bat_passes_data)
+bibliography_data <- read.csv("./activity_data/activity_bibliography.csv", sep = ",", header = TRUE)
+head(bibliography_data)
+
+
+###### Calculate Effect Sizes ######
+
+# calculate sd as this is needed to use the escalc() function
+all_bat_passes_data$light_sd <- all_bat_passes_data$light_se * sqrt(all_bat_passes_data$light_n)
+all_bat_passes_data$dark_sd  <- all_bat_passes_data$dark_se  * sqrt(all_bat_passes_data$dark_n)
+
+# calculate using package
+all_bat_passes_data <- escalc(measure = "MD",
+                          m1i = light_treatment_mean, sd1i = light_sd, n1i = light_n,
+                          m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
+                          data = all_bat_passes_data)
+View(all_bat_passes_data)
+
+
+###### Meta-Analysis ######
+
+# build meta-analysis model of mean difference
+activity_meta_model <- rma(yi, vi, data = all_bat_passes_data)
+activity_meta_model
+summary(activity_meta_model)
+
+# plot the model - funnel plot
+funnel(activity_meta_model)
+funnel(activity_meta_model, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+
+# plot the model - forest plot
+forest(activity_meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
 
 
 #### 3. Assessment of Literature ####
