@@ -162,6 +162,72 @@ forest(activity_meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade 
 
 # Here I will visualise the information I have on papers - i.e. the number of papers that will have the data but chose not to consider timing, those which do not report data appropriately, etc.
 
+##### Set-up #####
+# import data sets
+literature_data <- read.csv("./general_data/literature_overview.csv", sep = ",", header = TRUE)
+head(literature_data)
+
+timing_literature <- data.frame(table(literature_data$timing_decisions))
+colnames(timing_literature) <- c("paper_status", "count")
+head(timing_literature)
+
+activity_literature <- data.frame(table(literature_data$activity_decisions))
+colnames(activity_literature) <- c("paper_status", "count")
+head(activity_literature)
+
+# load required packages
+library(ggplot2)
+library(stringr)
+
+###### Visualise data ######
+
+# re-organise dataframes for clearer visualisation
+
+# define your custom order
+custom_order <- c("included", "poor_reporting", "diff_treatment", "not_timing", "irrelevant", "inaccessible")
+# apply the custom order to the dataframe
+timing_literature$paper_status <- factor(timing_literature$paper_status, levels = custom_order)
+
+# define your custom order
+custom_order <- c("included", "poor_reporting", "diff_measure", "diff_treatment", "not_activity_lvl", "irrelevant", "inaccessible")
+# apply the custom order to the dataframe
+activity_literature$paper_status <- factor(activity_literature$paper_status, levels = custom_order)
+
+# visualise the status of the literature
+
+# save customised colours and tick labels to use in plot
+timing_colours <- c("included" = "seagreen", "poor_reporting" = "maroon", "diff_treatment" = "maroon", "not_timing" = "maroon", "irrelevant" = "grey", "inaccessible" = "grey")
+timing_labels <- c("included" = "Included", "poor_reporting" = "Unclear reporting", "diff_treatment" = "Different predictor", "not_timing" = "Different behaviour", "irrelevant" = "Irrelevant papers", "inaccessible" = "Inaccessible papers")
+# plot literature overview for timing meta-analysis
+ggplot(timing_literature, aes(x = paper_status, y = count, fill = paper_status)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = timing_colours) +
+  theme_minimal() +
+  labs(x = "Paper Decision", y = "Number of Papers") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_discrete(labels = function(x) str_wrap(timing_labels, width = 10)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.5), legend.position = "none") +
+  geom_text(aes(label = count), vjust = -0.5)
+
+# save customised colours and tick labels to use in plot
+activity_colours <- c("included" = "seagreen", "poor_reporting" = "maroon","diff_measure" = "maroon", "diff_treatment" = "maroon", "not_activity_lvl" = "maroon", "irrelevant" = "grey", "inaccessible" = "grey")
+activity_labels <- c("included" = "Included", "poor_reporting" = "Unclear reporting", "diff_measure" = "Different measure", "diff_treatment" = "Different predictor", "not_activity_lvl" = "Different behaviour", "irrelevant" = "Irrelevant papers", "inaccessible" = "Inaccessible papers")
+# plot literature overview for activity levels meta-analysis
+ggplot(activity_literature, aes(x = paper_status, y = count, fill = paper_status)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = activity_colours) +
+  theme_minimal() +
+  labs(x = "Paper Decision", y = "Number of Papers") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_discrete(labels = function(x) str_wrap(activity_labels, width = 10)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.5), legend.position = "none") +
+  geom_text(aes(label = count), vjust = -0.5)
+
+
+#### 4. Publication Bias ####
+
+# Here I might test publication bias if it seems relevant from my plots
+
 
 #### Export all figures ####
 
