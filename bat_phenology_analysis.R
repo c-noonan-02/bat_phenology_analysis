@@ -34,8 +34,6 @@ metaanalysis_data <- escalc(measure = "MD",
                                    data = metaanalysis_data)
 View(metaanalysis_data)
 
-# visualise the data
-plot(metaanalysis_data$yi, metaanalysis_data$vi, xlab = "Mean difference in time of first activity (minutes after sunset)", ylab = "Variance")
 
 ##### Meta-Analysis #####
 
@@ -46,22 +44,26 @@ summary(timing_meta_model)
 
 # plot the model - funnel plot
 funnel(timing_meta_model)
+png("./figures/timing_funnel.png", width = 460, height = 350)
 funnel(timing_meta_model, label = "all", legend = list(cex = 0.9), yaxis = "sei", back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
 
 # add labels explaining which points are associated with which papers
 study_labels <- c("3 = Zou et al. (2024)", "2 = Stone et al. (2009)", "1 = Lou et al. (2021)", "Studies:")
-xpos <- 38.7
+xpos <- 44
 ypos <- 13
-rect(xpos, ypos - 6, xpos +34.1, ypos, col = "white", border = "black")
+rect(xpos, ypos - 6, xpos +28.8, ypos, col = "white", border = "black")
 for (i in seq_along(study_labels)) {
   if (study_labels[i] == "Studies:") {
-    text(xpos + 1.5, ypos - (i * 1.28), labels = study_labels[i], adj = 0, cex = 0.9, font = 2)
+    text(xpos + 1.5, ypos - (i * 1.28), labels = study_labels[i], adj = 0, cex = 0.8, font = 2)
   } else {
     text(xpos + 1.5, ypos - (i * 1.28), labels = study_labels[i], adj = 0, cex = 0.7)
   }}
+dev.off()
 
 # plot the model - forest plot
-forest(timing_meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
+png("./figures/timing_forest.png", width = 600, height = 350)
+forest(timing_meta_model, slab = metaanalysis_data$paper_ID, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, bg = "white", order = "obs", col = "pink", border = "black", colout = "#FF3399", header = c("Study ID"))
+dev.off()
 
 
 #### 2. Meta-analysis on mean activity levels ####
@@ -110,12 +112,34 @@ summary(activity_meta_model)
 
 # plot the model - funnel plot
 funnel(activity_meta_model)
+
+png("./figures/activity_funnel_species.png", width = 460, height = 350)
 funnel(activity_meta_model, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+dev.off()
 
 # plot the model - forest plot
-forest(activity_meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
+# Use gsub to replace full genus names in dataframe with abbreviated versions, for use in the plot
+bat_passes_data$species <- gsub("([A-Za-z])([a-z]+)_([a-z]+)", "\\1. \\3", bat_passes_data$species)
+# assign colours for plot
+species_colours <- c("R. hipposiderus" = "#1abc9c", "M. spp" = "#e74c3c", "P. pygmaeus" = "#3498db", "P. pipistrellus" = "#f39c12", "R. ferrumequinum" = "#9b59b6", "C. gouldii" = "#2ecc71", "O. ridei" = "#16a085", "V. vulturnus" = "#f39c12")
+bat_passes_data$species_colours <- species_colours[bat_passes_data$species]
 
-# change label from study to estimate, colour by species, etc.
+
+png("./figures/activity_forest_species.png", width = 700, height = 500)
+forest(activity_meta_model,
+       slab = bat_passes_data$paper_ID,
+       ilab = paste(str_pad(bat_passes_data$species, width = max(nchar(bat_passes_data$species)))),
+       ilab.pos = 2,
+       cex.lab = 0.8, cex.axis = 0.8,
+       cex = 1,
+       addfit = TRUE,
+       bg = "white",
+       order = bat_passes_data$paper_ID,
+       col = "pink", border = "black", colout = bat_passes_data$species_colours,
+       #col = "pink", border = "black", colout = "#FF3399",
+       header = c("Study ID"))
+text(-550, 16.4, "Species", pos = 3, cex = 1, font = 2)
+dev.off()
 
 
 ##### Over-all #####
@@ -152,10 +176,14 @@ summary(activity_meta_model)
 
 # plot the model - funnel plot
 funnel(activity_meta_model)
+png("./figures/activity_funnel_overall.png", width = 460, height = 350)
 funnel(activity_meta_model, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+dev.off()
 
 # plot the model - forest plot
-forest(activity_meta_model, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, shade = "zebra", order = "obs", col = "pink", border = "black", colout = "#FF3399")
+png("./figures/activity_forest_overall.png", width = 600, height = 350)
+forest(activity_meta_model, slab = all_bat_passes_data$paper_ID, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, bg = "white", order = "obs", col = "pink", border = "black", colout = "#FF3399", header = c("Study ID"))
+dev.off()
 
 
 #### 3. Assessment of Literature ####
@@ -199,36 +227,47 @@ activity_literature$paper_status <- factor(activity_literature$paper_status, lev
 timing_colours <- c("included" = "seagreen", "poor_reporting" = "maroon", "diff_treatment" = "maroon", "not_timing" = "maroon", "irrelevant" = "grey", "inaccessible" = "grey")
 timing_labels <- c("included" = "Included", "poor_reporting" = "Unclear reporting", "diff_treatment" = "Different predictor", "not_timing" = "Different behaviour", "irrelevant" = "Irrelevant papers", "inaccessible" = "Inaccessible papers")
 # plot literature overview for timing meta-analysis
-ggplot(timing_literature, aes(x = paper_status, y = count, fill = paper_status)) +
+timing_literature_plot <-
+  ggplot(timing_literature, aes(x = paper_status, y = count, fill = paper_status)) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = timing_colours) +
   theme_minimal() +
   labs(x = "Paper Decision", y = "Number of Papers") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(labels = function(x) str_wrap(timing_labels, width = 10)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 0.5), legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.5),
+        legend.position = "none",
+        plot.background = element_rect(fill = "white", color = "white"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
   geom_text(aes(label = count), vjust = -0.5)
+timing_literature_plot
 
 # save customised colours and tick labels to use in plot
 activity_colours <- c("included" = "seagreen", "poor_reporting" = "maroon","diff_measure" = "maroon", "diff_treatment" = "maroon", "not_activity_lvl" = "maroon", "irrelevant" = "grey", "inaccessible" = "grey")
 activity_labels <- c("included" = "Included", "poor_reporting" = "Unclear reporting", "diff_measure" = "Different measure", "diff_treatment" = "Different predictor", "not_activity_lvl" = "Different behaviour", "irrelevant" = "Irrelevant papers", "inaccessible" = "Inaccessible papers")
 # plot literature overview for activity levels meta-analysis
-ggplot(activity_literature, aes(x = paper_status, y = count, fill = paper_status)) +
+activity_literature_plot <-
+  ggplot(activity_literature, aes(x = paper_status, y = count, fill = paper_status)) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = activity_colours) +
   theme_minimal() +
   labs(x = "Paper Decision", y = "Number of Papers") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(labels = function(x) str_wrap(activity_labels, width = 10)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 0.5), legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.5),
+        legend.position = "none",
+        plot.background = element_rect(fill = "white", color = "white"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
   geom_text(aes(label = count), vjust = -0.5)
+activity_literature_plot
+
+# save both plots to files
+ggsave("./figures/activity_literature.png", plot = activity_literature_plot, width = 10, height = 6, dpi = 300)
+ggsave("./figures/timing_literature.png", plot = timing_literature_plot, width = 10, height = 6, dpi = 300)
 
 
 #### 4. Publication Bias ####
 
 # Here I might test publication bias if it seems relevant from my plots
-
-
-#### Export all figures ####
-
-# will add code here to save the figures
