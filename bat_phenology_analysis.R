@@ -73,6 +73,7 @@ rm(list = ls())
 
 # import relevant packages
 library(metafor)
+library(stringr)
 
 
 ##### By species #####
@@ -130,7 +131,7 @@ forest(activity_meta_model,
        slab = bat_passes_data$paper_ID,
        ilab = paste(str_pad(bat_passes_data$species, width = max(nchar(bat_passes_data$species)))),
        ilab.pos = 2,
-       cex.lab = 0.8, cex.axis = 0.8,
+       cex.lab = 1, cex.axis = 1,
        cex = 1,
        addfit = TRUE,
        bg = "white",
