@@ -234,14 +234,13 @@ timing_literature_plot <-
   scale_fill_manual(values = timing_colours) +
   theme_minimal() +
   labs(x = "Paper Decision", y = "Number of Papers") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(labels = function(x) str_wrap(timing_labels, width = 10)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 0.5),
+  theme(axis.text.x = element_text(hjust = 0.5, size = 10),
         legend.position = "none",
         plot.background = element_rect(fill = "white", color = "white"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
-  geom_text(aes(label = count), vjust = -0.5)
+  geom_text(aes(label = count), vjust = -0.5, size = 5)
 timing_literature_plot
 
 # save customised colours and tick labels to use in plot
@@ -254,14 +253,13 @@ activity_literature_plot <-
   scale_fill_manual(values = activity_colours) +
   theme_minimal() +
   labs(x = "Paper Decision", y = "Number of Papers") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(labels = function(x) str_wrap(activity_labels, width = 10)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 0.5),
+  theme(axis.text.x = element_text(hjust = 0.5, size = 10),
         legend.position = "none",
         plot.background = element_rect(fill = "white", color = "white"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
-  geom_text(aes(label = count), vjust = -0.5)
+  geom_text(aes(label = count), vjust = -0.5, size = 5)
 activity_literature_plot
 
 # save both plots to files
