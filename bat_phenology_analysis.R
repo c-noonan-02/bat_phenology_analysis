@@ -232,7 +232,7 @@ custom_order <- c("included", "poor_reporting", "diff_treatment", "not_timing", 
 timing_literature$paper_status <- factor(timing_literature$paper_status, levels = custom_order)
 
 # define your custom order
-custom_order <- c("included", "poor_reporting", "diff_measure", "diff_treatment", "not_activity_lvl", "irrelevant", "inaccessible")
+custom_order <- c("included", "poor_reporting", "diff_measure", "diff_treatment", "not_activitylvl", "irrelevant", "inaccessible")
 # apply the custom order to the dataframe
 activity_literature$paper_status <- factor(activity_literature$paper_status, levels = custom_order)
 
@@ -258,8 +258,8 @@ timing_literature_plot <-
 timing_literature_plot
 
 # save customised colours and tick labels to use in plot
-activity_colours <- c("included" = "seagreen", "poor_reporting" = "maroon","diff_measure" = "maroon", "diff_treatment" = "maroon", "not_activity_lvl" = "maroon", "irrelevant" = "grey", "inaccessible" = "grey")
-activity_labels <- c("included" = "Included", "poor_reporting" = "Unclear reporting", "diff_measure" = "Different measure", "diff_treatment" = "Different predictor", "not_activity_lvl" = "Different behaviour", "irrelevant" = "Irrelevant papers", "inaccessible" = "Inaccessible papers")
+activity_colours <- c("included" = "seagreen", "poor_reporting" = "maroon","diff_measure" = "maroon", "diff_treatment" = "maroon", "not_activitylvl" = "maroon", "irrelevant" = "grey", "inaccessible" = "grey")
+activity_labels <- c("included" = "Included", "poor_reporting" = "Unclear reporting", "diff_measure" = "Different measure", "diff_treatment" = "Different predictor", "not_activitylvl" = "Different behaviour", "irrelevant" = "Irrelevant papers", "inaccessible" = "Inaccessible papers")
 # plot literature overview for activity levels meta-analysis
 activity_literature_plot <-
   ggplot(activity_literature, aes(x = paper_status, y = count, fill = paper_status)) +
