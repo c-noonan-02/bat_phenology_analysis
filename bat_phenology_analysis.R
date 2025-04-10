@@ -102,6 +102,8 @@ bat_passes_data <- escalc(measure = "MD",
                             m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
                             data = bat_passes_data)
 View(bat_passes_data)
+bat_passes_data[1,2] <- "Rhinolophus_hipposideros"
+View(bat_passes_data)
 
 
 ###### Meta-Analysis ######
@@ -122,7 +124,7 @@ dev.off()
 # Use gsub to replace full genus names in dataframe with abbreviated versions, for use in the plot
 bat_passes_data$species <- gsub("([A-Za-z])([a-z]+)_([a-z]+)", "\\1. \\3", bat_passes_data$species)
 # assign colours for plot
-species_colours <- c("R. hipposiderus" = "#1abc9c", "M. spp" = "#e74c3c", "P. pygmaeus" = "#3498db", "P. pipistrellus" = "#f39c12", "R. ferrumequinum" = "#9b59b6", "C. gouldii" = "#2ecc71", "O. ridei" = "#16a085", "V. vulturnus" = "lightblue")
+species_colours <- c("R. hipposideros" = "#1abc9c", "M. spp" = "#e74c3c", "P. pygmaeus" = "#3498db", "P. pipistrellus" = "#f39c12", "R. ferrumequinum" = "#9b59b6", "C. gouldii" = "#2ecc71", "O. ridei" = "#16a085", "V. vulturnus" = "lightblue")
 paper_colours <- c("4XJZH9V7" = "#1abc9c", "66FLKFKZ" = "#e74c3c", "6IHYJZ5N" = "#3498db", "HYJXU4SH" = "#f39c12", "NSX6JM2N" = "#9b59b6", "XLE9CETS" = "#2ecc71")
 bat_passes_data$species_colours <- species_colours[bat_passes_data$species]
 bat_passes_data$paper_colours <- paper_colours[bat_passes_data$paper_ID]
