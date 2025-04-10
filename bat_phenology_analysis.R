@@ -48,15 +48,15 @@ png("./figures/timing_funnel.png", width = 460, height = 350)
 funnel(timing_meta_model, label = "all", legend = list(cex = 0.9), yaxis = "sei", back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
 
 # add labels explaining which points are associated with which papers
-study_labels <- c("3 = Zou et al. (2024)", "2 = Stone et al. (2009)", "1 = Lou et al. (2021)", "Studies:")
+study_labels <- c("3 = JTRLFNEZ", "2 = 6IHYJZ5N", "1 = XLE9CETS", "Studies:")
 xpos <- 44
 ypos <- 13
 rect(xpos, ypos - 6, xpos +28.8, ypos, col = "white", border = "black")
 for (i in seq_along(study_labels)) {
   if (study_labels[i] == "Studies:") {
-    text(xpos + 1.5, ypos - (i * 1.28), labels = study_labels[i], adj = 0, cex = 0.8, font = 2)
+    text(xpos + 1.5, ypos - (i * 1.28), labels = study_labels[i], adj = 0, cex = 0.9, font = 2)
   } else {
-    text(xpos + 1.5, ypos - (i * 1.28), labels = study_labels[i], adj = 0, cex = 0.7)
+    text(xpos + 1.5, ypos - (i * 1.28), labels = study_labels[i], adj = 0, cex = 0.8)
   }}
 dev.off()
 
@@ -122,24 +122,26 @@ dev.off()
 # Use gsub to replace full genus names in dataframe with abbreviated versions, for use in the plot
 bat_passes_data$species <- gsub("([A-Za-z])([a-z]+)_([a-z]+)", "\\1. \\3", bat_passes_data$species)
 # assign colours for plot
-species_colours <- c("R. hipposiderus" = "#1abc9c", "M. spp" = "#e74c3c", "P. pygmaeus" = "#3498db", "P. pipistrellus" = "#f39c12", "R. ferrumequinum" = "#9b59b6", "C. gouldii" = "#2ecc71", "O. ridei" = "#16a085", "V. vulturnus" = "#f39c12")
+species_colours <- c("R. hipposiderus" = "#1abc9c", "M. spp" = "#e74c3c", "P. pygmaeus" = "#3498db", "P. pipistrellus" = "#f39c12", "R. ferrumequinum" = "#9b59b6", "C. gouldii" = "#2ecc71", "O. ridei" = "#16a085", "V. vulturnus" = "lightblue")
+paper_colours <- c("4XJZH9V7" = "#1abc9c", "66FLKFKZ" = "#e74c3c", "6IHYJZ5N" = "#3498db", "HYJXU4SH" = "#f39c12", "NSX6JM2N" = "#9b59b6", "XLE9CETS" = "#2ecc71")
 bat_passes_data$species_colours <- species_colours[bat_passes_data$species]
+bat_passes_data$paper_colours <- paper_colours[bat_passes_data$paper_ID]
 
 
-png("./figures/activity_forest_species.png", width = 700, height = 500)
+png("./figures/activity_forest_species.png", width = 1200, height = 700)
 forest(activity_meta_model,
        slab = bat_passes_data$paper_ID,
        ilab = paste(str_pad(bat_passes_data$species, width = max(nchar(bat_passes_data$species)))),
        ilab.pos = 2,
        cex.lab = 1, cex.axis = 1,
-       cex = 1,
+       cex = 2,
        addfit = TRUE,
        bg = "white",
-       order = bat_passes_data$paper_ID,
+       order = bat_passes_data$species,
        col = "pink", border = "black", colout = bat_passes_data$species_colours,
        #col = "pink", border = "black", colout = "#FF3399",
        header = c("Study ID"))
-text(-550, 16.4, "Species", pos = 3, cex = 1, font = 2)
+text(-550, 16.4, "Species", pos = 3, cex = 2, font = 2)
 dev.off()
 
 
@@ -178,7 +180,19 @@ summary(activity_meta_model)
 # plot the model - funnel plot
 funnel(activity_meta_model)
 png("./figures/activity_funnel_overall.png", width = 460, height = 350)
-funnel(activity_meta_model, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+funnel(activity_meta_model, label = "all", legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+
+# add study labels to the plot
+study_labels <- c("3 = 66FLKFKZ", "2 = HYJXU4SH", "1 = XLE9CETS", "Studies:")
+xpos <- 3
+ypos <- 48
+rect(xpos, ypos - 26, xpos + 125, ypos, col = "white", border = "black")
+for (i in seq_along(study_labels)) {
+  if (study_labels[i] == "Studies:") {
+    text(xpos + 3, ypos - (i * 5.3), labels = study_labels[i], adj = 0, cex = 0.9, font = 2)
+  } else {
+    text(xpos + 3, ypos - (i * 5.3), labels = study_labels[i], adj = 0, cex = 0.8)
+  }}
 dev.off()
 
 # plot the model - forest plot
