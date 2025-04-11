@@ -11,34 +11,34 @@ library(metafor)
 
 ##### Set-up #####
 # import data sets
-metaanalysis_data <- read.csv("./timing_data/extracted_data.csv", sep = ",", header = TRUE)
-head(metaanalysis_data)
+timing_data <- read.csv("./timing_data/extracted_data.csv", sep = ",", header = TRUE)
+head(timing_data)
 bibliography_data <- read.csv("./timing_data/bibliography_data.csv", sep = ",", header = TRUE)
 head(bibliography_data)
 
 # place papers in alphabetical order, as this is more logical
 bibliography_data <- bibliography_data[order(bibliography_data$author), ]
-metaanalysis_data <- metaanalysis_data[match(bibliography_data$paper_ID, metaanalysis_data$paper_ID), ]
+timing_data <- timing_data[match(bibliography_data$paper_ID, timing_data$paper_ID), ]
 
 
 ##### Calculate Effect Sizes #####
 
 # calculate sd as this is needed to use the escalc() function
-metaanalysis_data$light_sd <- metaanalysis_data$light_se * sqrt(metaanalysis_data$light_n)
-metaanalysis_data$dark_sd  <- metaanalysis_data$dark_se  * sqrt(metaanalysis_data$dark_n)
+timing_data$light_sd <- timing_data$light_se * sqrt(timing_data$light_n)
+timing_data$dark_sd  <- timing_data$dark_se  * sqrt(timing_data$dark_n)
 
 # calculate using package
-metaanalysis_data <- escalc(measure = "MD",
+timing_data <- escalc(measure = "MD",
                                    m1i = light_treatment_mean, sd1i = light_sd, n1i = light_n,
                                    m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
-                                   data = metaanalysis_data)
-View(metaanalysis_data)
+                                   data = timing_data)
+View(timing_data)
 
 
 ##### Meta-Analysis #####
 
-# build meta-analysis model of mean difference
-timing_meta_model <- rma(yi, vi, data = metaanalysis_data)
+# build meta-analysis model of mean difference (Model 1)
+timing_meta_model <- rma(yi, vi, data = timing_data)
 timing_meta_model
 summary(timing_meta_model)
 
@@ -62,95 +62,15 @@ dev.off()
 
 # plot the model - forest plot
 png("./figures/timing_forest.png", width = 600, height = 350)
-forest(timing_meta_model, slab = metaanalysis_data$paper_ID, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, bg = "white", order = "obs", col = "pink", border = "black", colout = "#FF3399", header = c("Study ID"))
+forest(timing_meta_model, slab = timing_data$paper_ID, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, bg = "white", order = "obs", col = "pink", border = "black", colout = "#FF3399", header = c("Study ID"))
 dev.off()
 
 
 #### 2. Meta-analysis on mean activity levels ####
 
-# clear environment
-rm(list = ls())
-
 # import relevant packages
 library(metafor)
 library(stringr)
-
-
-##### By species #####
-
-###### Set-up ######
-# import data sets
-bat_passes_data <- read.csv("./activity_data/bat_passes_data.csv", sep = ",", header = TRUE)
-head(bat_passes_data)
-bibliography_data <- read.csv("./activity_data/activity_bibliography.csv", sep = ",", header = TRUE)
-head(bibliography_data)
-
-# # place papers in alphabetical order, as this is more logical
-# bibliography_data <- bibliography_data[order(bibliography_data$author), ]
-# bat_passes_data <- bat_passes_data[match(bibliography_data$paper_ID, bat_passes_data$paper_ID), ]
-
-
-###### Calculate Effect Sizes ######
-
-# calculate sd as this is needed to use the escalc() function
-bat_passes_data$light_sd <- bat_passes_data$light_se * sqrt(bat_passes_data$light_n)
-bat_passes_data$dark_sd  <- bat_passes_data$dark_se  * sqrt(bat_passes_data$dark_n)
-
-# calculate using package
-bat_passes_data <- escalc(measure = "MD",
-                            m1i = light_treatment_mean, sd1i = light_sd, n1i = light_n,
-                            m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
-                            data = bat_passes_data)
-View(bat_passes_data)
-bat_passes_data[1,2] <- "Rhinolophus_hipposideros"
-View(bat_passes_data)
-
-
-###### Meta-Analysis ######
-
-# build meta-analysis model of mean difference
-activity_meta_model1 <- rma.mv(yi, vi, mods = ~ 1, random = list(~1|species, ~1|paper_ID), data = bat_passes_data)
-activity_meta_model1
-summary(activity_meta_model1)
-
-activity_meta_model2 <- rma.mv(yi, vi, mods = ~ 1, random = ~1|paper_ID, data = bat_passes_data)
-summary(activity_meta_model2)
-
-activity_meta_model3 <- rma(yi, vi, mods = ~ 1, data = bat_passes_data)
-summary(activity_meta_model3)
-
-# plot the model - funnel plot
-funnel(activity_meta_model1)
-
-png("./figures/activity_funnel_species.png", width = 460, height = 350)
-funnel(activity_meta_model1, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
-dev.off()
-
-# plot the model - forest plot
-# Use gsub to replace full genus names in dataframe with abbreviated versions, for use in the plot
-bat_passes_data$species <- gsub("([A-Za-z])([a-z]+)_([a-z]+)", "\\1. \\3", bat_passes_data$species)
-# assign colours for plot
-species_colours <- c("R. hipposideros" = "#1abc9c", "M. spp" = "#e74c3c", "P. pygmaeus" = "#3498db", "P. pipistrellus" = "#f39c12", "R. ferrumequinum" = "#9b59b6", "C. gouldii" = "#2ecc71", "O. ridei" = "#16a085", "V. vulturnus" = "lightblue")
-paper_colours <- c("4XJZH9V7" = "#1abc9c", "66FLKFKZ" = "#e74c3c", "6IHYJZ5N" = "#3498db", "HYJXU4SH" = "#f39c12", "NSX6JM2N" = "#9b59b6", "XLE9CETS" = "#2ecc71")
-bat_passes_data$species_colours <- species_colours[bat_passes_data$species]
-bat_passes_data$paper_colours <- paper_colours[bat_passes_data$paper_ID]
-
-
-png("./figures/activity_forest_species.png", width = 1200, height = 700)
-forest(activity_meta_model1,
-       slab = bat_passes_data$paper_ID,
-       ilab = paste(str_pad(bat_passes_data$species, width = max(nchar(bat_passes_data$species)))),
-       ilab.pos = 2,
-       cex.lab = 1, cex.axis = 1,
-       cex = 2,
-       addfit = TRUE,
-       bg = "white",
-       order = bat_passes_data$species,
-       col = "pink", border = "black", colout = bat_passes_data$species_colours,
-       #col = "pink", border = "black", colout = "#FF3399",
-       header = c("Study ID"))
-text(-550, 16.4, "Species", pos = 3, cex = 2, font = 2)
-dev.off()
 
 
 ##### Over-all #####
@@ -158,8 +78,8 @@ dev.off()
 
 ###### Set-up ######
 # import data sets
-all_bat_passes_data <- read.csv("./activity_data/all_bat_passes_data.csv", sep = ",", header = TRUE)
-head(all_bat_passes_data)
+species_activity_data <- read.csv("./activity_data/bat_passes_data.csv", sep = ",", header = TRUE)
+head(species_activity_data)
 bibliography_data <- read.csv("./activity_data/activity_bibliography.csv", sep = ",", header = TRUE)
 head(bibliography_data)
 
@@ -167,21 +87,21 @@ head(bibliography_data)
 ###### Calculate Effect Sizes ######
 
 # calculate sd as this is needed to use the escalc() function
-all_bat_passes_data$light_sd <- all_bat_passes_data$light_se * sqrt(all_bat_passes_data$light_n)
-all_bat_passes_data$dark_sd  <- all_bat_passes_data$dark_se  * sqrt(all_bat_passes_data$dark_n)
+species_activity_data$light_sd <- species_activity_data$light_se * sqrt(species_activity_data$light_n)
+species_activity_data$dark_sd  <- species_activity_data$dark_se  * sqrt(species_activity_data$dark_n)
 
 # calculate using package
-all_bat_passes_data <- escalc(measure = "MD",
+species_activity_data <- escalc(measure = "MD",
                           m1i = light_treatment_mean, sd1i = light_sd, n1i = light_n,
                           m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
-                          data = all_bat_passes_data)
-View(all_bat_passes_data)
+                          data = species_activity_data)
+View(species_activity_data)
 
 
 ###### Meta-Analysis ######
 
-# build meta-analysis model of mean difference
-activity_meta_model <- rma(yi, vi, data = all_bat_passes_data)
+# build meta-analysis model of mean difference (Model 2)
+activity_meta_model <- rma(yi, vi, data = species_activity_data)
 activity_meta_model
 summary(activity_meta_model)
 
@@ -205,7 +125,84 @@ dev.off()
 
 # plot the model - forest plot
 png("./figures/activity_forest_overall.png", width = 600, height = 350)
-forest(activity_meta_model, slab = all_bat_passes_data$paper_ID, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, bg = "white", order = "obs", col = "pink", border = "black", colout = "#FF3399", header = c("Study ID"))
+forest(activity_meta_model, slab = species_activity_data$paper_ID, cex.lab = 0.8, cex.axis = 0.8, addfit = TRUE, bg = "white", order = "obs", col = "pink", border = "black", colout = "#FF3399", header = c("Study ID"))
+dev.off()
+
+
+##### By species #####
+
+###### Set-up ######
+# import data sets
+activity_data <- read.csv("./activity_data/bat_passes_data.csv", sep = ",", header = TRUE)
+head(activity_data)
+bibliography_data <- read.csv("./activity_data/activity_bibliography.csv", sep = ",", header = TRUE)
+head(bibliography_data)
+
+# # place papers in alphabetical order, as this is more logical
+# bibliography_data <- bibliography_data[order(bibliography_data$author), ]
+# activity_data <- activity_data[match(bibliography_data$paper_ID, activity_data$paper_ID), ]
+
+
+###### Calculate Effect Sizes ######
+
+# calculate sd as this is needed to use the escalc() function
+activity_data$light_sd <- activity_data$light_se * sqrt(activity_data$light_n)
+activity_data$dark_sd  <- activity_data$dark_se  * sqrt(activity_data$dark_n)
+
+# calculate using package
+activity_data <- escalc(measure = "MD",
+                          m1i = light_treatment_mean, sd1i = light_sd, n1i = light_n,
+                          m2i = dark_treatment_mean, sd2i = dark_sd, n2i = dark_n,
+                          data = activity_data)
+View(activity_data)
+activity_data[1,2] <- "Rhinolophus_hipposideros"
+View(activity_data)
+
+
+###### Meta-Analysis ######
+
+# build meta-analysis model of mean difference (Model 3a, complex model)
+activity_meta_model1 <- rma.mv(yi, vi, mods = ~ 1, random = list(~1|species, ~1|paper_ID), data = activity_data)
+activity_meta_model1
+summary(activity_meta_model1)
+# build meta-analysis model of mean difference (Model 3b, drop species as random effect)
+activity_meta_model2 <- rma.mv(yi, vi, mods = ~ 1, random = ~1|paper_ID, data = activity_data)
+summary(activity_meta_model2)
+# build meta-analysis model of mean difference (Model 3c, simple model)
+activity_meta_model3 <- rma(yi, vi, mods = ~ 1, data = activity_data)
+summary(activity_meta_model3)
+
+# plot the model - funnel plot
+funnel(activity_meta_model1)
+
+png("./figures/activity_funnel_species.png", width = 460, height = 350)
+funnel(activity_meta_model1, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+dev.off()
+
+# plot the model - forest plot
+# Use gsub to replace full genus names in dataframe with abbreviated versions, for use in the plot
+activity_data$species <- gsub("([A-Za-z])([a-z]+)_([a-z]+)", "\\1. \\3", activity_data$species)
+# assign colours for plot
+species_colours <- c("R. hipposideros" = "#1abc9c", "M. spp" = "#e74c3c", "P. pygmaeus" = "#3498db", "P. pipistrellus" = "#f39c12", "R. ferrumequinum" = "#9b59b6", "C. gouldii" = "#2ecc71", "O. ridei" = "#16a085", "V. vulturnus" = "lightblue")
+paper_colours <- c("4XJZH9V7" = "#1abc9c", "66FLKFKZ" = "#e74c3c", "6IHYJZ5N" = "#3498db", "HYJXU4SH" = "#f39c12", "NSX6JM2N" = "#9b59b6", "XLE9CETS" = "#2ecc71")
+activity_data$species_colours <- species_colours[activity_data$species]
+activity_data$paper_colours <- paper_colours[activity_data$paper_ID]
+
+
+png("./figures/activity_forest_species.png", width = 1200, height = 700)
+forest(activity_meta_model1,
+       slab = activity_data$paper_ID,
+       ilab = paste(str_pad(activity_data$species, width = max(nchar(activity_data$species)))),
+       ilab.pos = 2,
+       cex.lab = 1, cex.axis = 1,
+       cex = 2,
+       addfit = TRUE,
+       bg = "white",
+       order = activity_data$species,
+       col = "pink", border = "black", colout = activity_data$species_colours,
+       #col = "pink", border = "black", colout = "#FF3399",
+       header = c("Study ID"))
+text(-550, 16.4, "Species", pos = 3, cex = 2, font = 2)
 dev.off()
 
 
@@ -291,4 +288,18 @@ ggsave("./figures/timing_literature.png", plot = timing_literature_plot, width =
 
 #### 4. Publication Bias ####
 
+# load required packages
+library(clubSandwich)
+
 # Here I might test publication bias if it seems relevant from my plots
+
+# test of publication bias for Model 1
+regtest(x = timing_meta_model, model = "rma", predictor = "sei", ret.fit = FALSE)
+# test of publication bias for Model 2
+regtest(x = activity_meta_model, model = "rma", predictor = "sei", ret.fit = FALSE)
+# test of publication bias for Model 3(b, as simplified model is necessary for analysis)
+coef_test(activity_meta_model2, vcov = "CR2", cluster = activity_data$paper_ID)
+
+
+
+
