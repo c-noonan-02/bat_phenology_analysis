@@ -109,15 +109,21 @@ View(bat_passes_data)
 ###### Meta-Analysis ######
 
 # build meta-analysis model of mean difference
-activity_meta_model <- rma.mv(yi, vi, mods = ~ 1, random = list(~1|species, ~1|paper_ID), data = bat_passes_data)
-activity_meta_model
-summary(activity_meta_model)
+activity_meta_model1 <- rma.mv(yi, vi, mods = ~ 1, random = list(~1|species, ~1|paper_ID), data = bat_passes_data)
+activity_meta_model1
+summary(activity_meta_model1)
+
+activity_meta_model2 <- rma.mv(yi, vi, mods = ~ 1, random = ~1|paper_ID, data = bat_passes_data)
+summary(activity_meta_model2)
+
+activity_meta_model3 <- rma(yi, vi, mods = ~ 1, data = bat_passes_data)
+summary(activity_meta_model3)
 
 # plot the model - funnel plot
-funnel(activity_meta_model)
+funnel(activity_meta_model1)
 
 png("./figures/activity_funnel_species.png", width = 460, height = 350)
-funnel(activity_meta_model, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
+funnel(activity_meta_model1, label = FALSE, legend = list(cex = 0.9), back = "white", shade = "grey80", hlines = "grey90", lty = 2, lwd = 2, pch = 16, col = "#FF3399")
 dev.off()
 
 # plot the model - forest plot
@@ -131,7 +137,7 @@ bat_passes_data$paper_colours <- paper_colours[bat_passes_data$paper_ID]
 
 
 png("./figures/activity_forest_species.png", width = 1200, height = 700)
-forest(activity_meta_model,
+forest(activity_meta_model1,
        slab = bat_passes_data$paper_ID,
        ilab = paste(str_pad(bat_passes_data$species, width = max(nchar(bat_passes_data$species)))),
        ilab.pos = 2,
